@@ -1,0 +1,19 @@
+{
+    "name": "purescript-simple-ulid",
+    "license": [
+        "MIT"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/oreshinya/purescript-simple-ulid"
+    },
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "output"
+    ],
+    "dependencies": {
+        "purescript-js-date": "^6.0.0"
+    }
+}
