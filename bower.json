@@ -14,6 +14,8 @@
         "output"
     ],
     "dependencies": {
-        "purescript-js-date": "^6.0.0"
+        "purescript-exceptions": "^4.0.0",
+        "purescript-now": "^4.0.0",
+        "purescript-strings": "^4.0.0"
     }
 }
