@@ -1,6 +1,7 @@
 module Simple.ULID
   ( ULID
   , genULID
+  , genULID'
   , toString
   ) where
 
@@ -8,13 +9,15 @@ import Prelude
 
 import Control.Monad.Rec.Class (Step(..), tailRec, tailRecM)
 import Data.Array ((:))
+import Data.DateTime.Instant (unInstant)
 import Data.Int (floor, toNumber)
-import Data.JSDate (getTime, now)
 import Data.String (length)
 import Data.String.CodeUnits (fromCharArray)
 import Data.String.Unsafe (charAt)
+import Data.Time.Duration (Milliseconds(..))
 import Effect (Effect)
 import Effect.Exception (error, throwException)
+import Effect.Now (now)
 import Math (pow, (%))
 
 newtype ULID = ULID String
@@ -24,18 +27,20 @@ derive newtype instance eqULID :: Eq ULID
 derive newtype instance ordULID :: Ord ULID
 
 genULID :: Effect ULID
-genULID =
-  append <$> timeSec <*> randSec <#> ULID
+genULID = now <#> unInstant >>= genULID'
+
+genULID' :: Milliseconds -> Effect ULID
+genULID' ms =
+  append <$> timeSec ms <*> randSec <#> ULID
 
 toString :: ULID -> String
 toString (ULID str) = str
 
-timeSec :: Effect String
-timeSec = do
-  t <- now <#> getTime
-  when (t > timeMax) do
-    throwException $ error $ "cannot encode time greater than " <> show t
-  pure $ tailRec gen { rest: timeLength, chars: [], t }
+timeSec :: Milliseconds -> Effect String
+timeSec (Milliseconds ms) = do
+  when (ms > timeMax) do
+    throwException $ error $ "cannot encode time greater than " <> show ms
+  pure $ tailRec gen { rest: timeLength, chars: [], t: ms }
   where
     gen { rest: 0, chars } =
       Done $ fromCharArray chars
