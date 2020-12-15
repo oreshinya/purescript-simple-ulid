@@ -5,6 +5,7 @@
     "spago": "spago",
     "watch": "spago build -w -u '--strict --stash --censor-lib --is-lib=.spago'",
     "clean": "rm -rf output",
+    "test": "spago -x test.dhall test -u '--strict --stash --censor-lib --is-lib=.spago'",
     "pulp:publish": "pulp publish",
     "pulp:login": "pulp login"
   },
