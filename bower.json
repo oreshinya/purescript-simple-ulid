@@ -14,8 +14,8 @@
         "output"
     ],
     "dependencies": {
-        "purescript-exceptions": "^4.0.0",
-        "purescript-now": "^4.0.0",
-        "purescript-strings": "^4.0.0"
+        "purescript-exceptions": "^v4.0.0",
+        "purescript-now": "^v4.0.0",
+        "purescript-strings": "^v4.0.2"
     }
 }
