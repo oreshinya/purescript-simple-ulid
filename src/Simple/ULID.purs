@@ -11,6 +11,7 @@ import Control.Monad.Rec.Class (Step(..), tailRec, tailRecM)
 import Data.Array ((:))
 import Data.DateTime.Instant (unInstant)
 import Data.Int (floor, toNumber)
+import Data.Number (pow, (%))
 import Data.String (length)
 import Data.String.CodeUnits (fromCharArray)
 import Data.String.Unsafe (charAt)
@@ -18,7 +19,7 @@ import Data.Time.Duration (Milliseconds(..))
 import Effect (Effect)
 import Effect.Exception (error, throwException)
 import Effect.Now (now)
-import Math (pow, (%))
+import Simple.ULID.PRNG (PRNG, toEffect)
 
 newtype ULID = ULID String
 
@@ -26,12 +27,12 @@ derive newtype instance showULID :: Show ULID
 derive newtype instance eqULID :: Eq ULID
 derive newtype instance ordULID :: Ord ULID
 
-genULID :: Effect ULID
-genULID = now <#> unInstant >>= genULID'
+genULID :: PRNG -> Effect ULID
+genULID prng = now <#> unInstant >>= genULID' prng
 
-genULID' :: Milliseconds -> Effect ULID
-genULID' ms =
-  append <$> timeSec ms <*> randSec <#> ULID
+genULID' :: PRNG -> Milliseconds -> Effect ULID
+genULID' prng ms =
+  append <$> timeSec ms <*> randSec prng <#> ULID
 
 toString :: ULID -> String
 toString (ULID str) = str
@@ -50,14 +51,14 @@ timeSec (Milliseconds ms) = do
           t' = (t - mod) / encodingLength
        in Loop { rest: rest - 1, chars: chars', t: t' }
 
-randSec :: Effect String
-randSec =
+randSec :: PRNG -> Effect String
+randSec prng =
   tailRecM gen { rest: randLength, chars: [] }
   where
     gen { rest: 0, chars } =
       pure $ Done $ fromCharArray chars
     gen { rest, chars } = do
-      n <- prng
+      n <- toEffect prng
       let rand = floor $ n * encodingLength
           idx =
             if toNumber rand == encodingLength
@@ -80,5 +81,3 @@ timeLength = 10
 
 randLength :: Int
 randLength = 16
-
-foreign import prng :: Effect Number
